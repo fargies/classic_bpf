@@ -11,6 +11,10 @@ use std::os::unix::io::RawFd;
 //#define BPF_STMT(code, k) { (u_int16_t)(code), 0, 0, k }
 //#define BPF_JUMP(code, k, jt, jf) { (u_int16_t)(code), jt, jf, k }
 
+/// element of a classic BPF program
+/// it is libc::sock_filter for Linux systems
+/// it is bf_insn for FreeBSD systems
+#[derive(Debug)]
 #[repr(C)]
 pub struct BPFFilter {
     code: u16,
@@ -36,23 +40,26 @@ impl BPFFilter {
     }
 }
 
+/// represents a classic BPF program
+#[derive(Debug)]
 #[repr(C)]
-pub struct BPFFProg {
+pub struct BPFFProg<'a> {
     len: u16,
-    filters: *mut BPFFilter,
+    filters: &'a BPFFilter,
 }
 
-// lifetime?
-impl BPFFProg {
-    pub fn new(filters: &mut [BPFFilter]) -> Self {
+impl<'a> BPFFProg<'a> {
+    pub fn new(filters: &'a [BPFFilter]) -> Self {
         Self {
             len: filters.len() as u16,
-            filters: filters.as_mut_ptr().cast(),
+            filters: unsafe { &*(filters.as_ptr()) },
         }
     }
 }
 
+// safe wrapper for some operations related to BPFProg
 pub trait BPFOperations {
+    /// attach the classic BPF program attached to a socket
     fn attach_filter(self, fd: RawFd) -> Result<(), i32>;
 }
 

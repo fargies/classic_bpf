@@ -2,7 +2,7 @@ use crate::bpf_base::*;
 use std::mem::size_of;
 use std::os::unix::io::RawFd;
 
-impl BPFOperations for BPFFProg {
+impl BPFOperations for BPFFProg<'_> {
     fn attach_filter(self, socket_raw_fd: RawFd) -> Result<(), i32> {
         match unsafe {
             libc::setsockopt(
@@ -19,6 +19,7 @@ impl BPFOperations for BPFFProg {
     }
 }
 
+/// remove the classic BPF program attached to a socket
 pub fn detach_filter(socket_raw_fd: RawFd) -> Result<(), i32> {
     match unsafe {
         libc::setsockopt(
