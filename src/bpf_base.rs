@@ -16,7 +16,7 @@ pub struct BPFFilter {
     code: u16,
     jt: u8,
     jf: u8,
-    k: u32
+    k: u32,
 }
 
 impl BPFFilter {
@@ -29,7 +29,7 @@ impl BPFFilter {
             k,
         }
     }
-    
+
     #[inline]
     pub fn bpf_jump(code: u16, k: u32, jt: u8, jf: u8) -> Self {
         Self { code, jt, jf, k }
@@ -39,7 +39,7 @@ impl BPFFilter {
 #[repr(C)]
 pub struct BPFFProg {
     len: u16,
-    filters: *mut BPFFilter
+    filters: *mut BPFFilter,
 }
 
 // lifetime?
@@ -47,7 +47,7 @@ impl BPFFProg {
     pub fn new(filters: &mut [BPFFilter]) -> Self {
         Self {
             len: filters.len() as u16,
-            filters: filters.as_mut_ptr().cast()
+            filters: filters.as_mut_ptr().cast(),
         }
     }
 }
