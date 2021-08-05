@@ -11,6 +11,19 @@ use std::os::unix::io::RawFd;
 /// it is `libc::sock_filter` for Linux systems
 ///
 /// it is `bf_insn` for FreeBSD systems
+///
+/// # Example
+///
+/// ```
+/// use classic_bpf::*;
+/// // a filter that will drop all contents of the incoming packet
+/// let filter1 = BPFFilter::bpf_stmt((BPF_RET | BPF_K) as u16, 0);
+///
+/// // a filter that will check the value in the register
+/// // and execute the next command of the BPF program (when it matches libc::IPPROTO_ICMPV6)
+/// // or execute the command after the next (when does not match)
+/// let filter2 = BPFFilter::bpf_jump((BPF_JMP | BPF_JEQ | BPF_K) as u16, libc::IPPROTO_ICMPV6 as u32, 0, 1);
+/// ```
 #[derive(Debug)]
 #[repr(C)]
 pub struct BPFFilter {
@@ -40,6 +53,26 @@ impl BPFFilter {
 }
 
 /// represents a classic BPF program
+///
+/// # Example
+///
+/// ```
+/// use classic_bpf::*;
+///
+/// // filter the ICMPv6 packets
+/// let filters = [
+///     BPFFilter::bpf_stmt((BPF_LD | BPF_B | BPF_ABS) as u16, 6),
+///     BPFFilter::bpf_jump((BPF_JMP | BPF_JEQ | BPF_K) as u16, libc::IPPROTO_ICMPV6 as u32, 0, 1),
+///     BPFFilter::bpf_stmt((BPF_RET | BPF_K) as u16, u32::MAX),
+///     BPFFilter::bpf_stmt((BPF_RET | BPF_K) as u16, 0),
+/// ];
+///
+/// let program = BPFFProg::new(&filters);
+///
+/// // do not forget to attach it to a socket
+/// // let socket = socket2::Socket::new(...);
+/// // program.attach_filter(socket.as_raw_fd());
+/// ```
 #[derive(Debug)]
 #[repr(C)]
 pub struct BPFFProg<'a> {
@@ -62,6 +95,7 @@ pub trait BPFOperations {
     fn attach_filter(self, fd: RawFd) -> Result<(), i32>;
 }
 
+// TODO: more documentation
 /* instruction classes */
 pub const BPF_LD: u16 = 0x00;
 pub const BPF_LDX: u16 = 0x01;
