@@ -6,14 +6,11 @@
 
 use std::os::unix::io::RawFd;
 
-/// see https://github.com/freebsd/freebsd-src/blob/main/share/man/man4/bpf.4
-
-//#define BPF_STMT(code, k) { (u_int16_t)(code), 0, 0, k }
-//#define BPF_JUMP(code, k, jt, jf) { (u_int16_t)(code), jt, jf, k }
-
 /// element of a classic BPF program
-/// it is libc::sock_filter for Linux systems
-/// it is bf_insn for FreeBSD systems
+///
+/// it is `libc::sock_filter` for Linux systems
+///
+/// it is `bf_insn` for FreeBSD systems
 #[derive(Debug)]
 #[repr(C)]
 pub struct BPFFilter {
@@ -24,6 +21,7 @@ pub struct BPFFilter {
 }
 
 impl BPFFilter {
+    /// #define BPF_STMT(code, k) { (u_int16_t)(code), 0, 0, k }
     #[inline]
     pub fn bpf_stmt(code: u16, k: u32) -> Self {
         Self {
@@ -34,6 +32,7 @@ impl BPFFilter {
         }
     }
 
+    /// #define BPF_JUMP(code, k, jt, jf) { (u_int16_t)(code), jt, jf, k }
     #[inline]
     pub fn bpf_jump(code: u16, k: u32, jt: u8, jf: u8) -> Self {
         Self { code, jt, jf, k }
@@ -57,9 +56,9 @@ impl<'a> BPFFProg<'a> {
     }
 }
 
-// safe wrapper for some operations related to BPFProg
+/// safe wrapper for some operations related to BPFProg
 pub trait BPFOperations {
-    /// attach the classic BPF program attached to a socket
+    /// attach the classic BPF program to a socket
     fn attach_filter(self, fd: RawFd) -> Result<(), i32>;
 }
 
