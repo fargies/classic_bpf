@@ -4,7 +4,7 @@
  * seems it is compatible with MIT
  */
 
-use std::os::unix::io::RawFd;
+use std::os::unix::io::AsRawFd;
 
 /// element of a classic BPF program
 ///
@@ -71,7 +71,7 @@ impl BPFFilter {
 ///
 /// // do not forget to attach it to a socket
 /// // let socket = socket2::Socket::new(...);
-/// // program.attach_filter(socket.as_raw_fd());
+/// // program.attach_filter(socket);
 /// ```
 #[derive(Debug)]
 #[repr(C)]
@@ -92,7 +92,7 @@ impl<'a> BPFFProg<'a> {
 /// safe wrapper for some operations related to BPFProg
 pub trait BPFOperations {
     /// attach the classic BPF program to a socket
-    fn attach_filter(self, fd: RawFd) -> Result<(), i32>;
+    fn attach_filter<T>(self, fd: impl AsRawFd) -> Result<(), i32>;
 }
 
 // TODO: more documentation
