@@ -1,7 +1,7 @@
 use crate::bpf_base::*;
 use std::os::unix::io::AsRawFd;
 
-impl AttachFilter for BPFFProg {
+impl BPFOperations for BPFFProg<'_> {
     fn attach_filter<T>(self, socket: &T) -> Result<(), i32>
     where
         T: AsRawFd,
