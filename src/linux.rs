@@ -3,7 +3,10 @@ use std::mem::size_of;
 use std::os::unix::io::AsRawFd;
 
 impl BPFOperations for BPFFProg<'_> {
-    fn attach_filter<T>(self, socket: impl AsRawFd) -> Result<(), i32> {
+    fn attach_filter<T>(self, socket: &T) -> Result<(), i32>
+    where
+        T: AsRawFd,
+    {
         match unsafe {
             libc::setsockopt(
                 socket.as_raw_fd(),
@@ -20,7 +23,10 @@ impl BPFOperations for BPFFProg<'_> {
 }
 
 /// remove the classic BPF program attached to a socket
-pub fn detach_filter<T>(socket: impl AsRawFd) -> Result<(), i32> {
+pub fn detach_filter<T>(socket: &T) -> Result<(), i32>
+where
+    T: AsRawFd,
+{
     match unsafe {
         libc::setsockopt(
             socket.as_raw_fd(),

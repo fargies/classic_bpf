@@ -2,7 +2,10 @@ use crate::bpf_base::*;
 use std::os::unix::io::AsRawFd;
 
 impl AttachFilter for BPFFProg {
-    fn attach_filter<T>(self, socket_raw_fd<T>: impl AsRawFd) -> Result<(), i32> {
+    fn attach_filter<T>(self, socket: &T) -> Result<(), i32>
+    where
+        T: AsRawFd,
+    {
         match unsafe {
             libc::ioctl(
                 socket.as_raw_fd(),

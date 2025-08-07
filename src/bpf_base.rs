@@ -92,7 +92,9 @@ impl<'a> BPFFProg<'a> {
 /// safe wrapper for some operations related to BPFProg
 pub trait BPFOperations {
     /// attach the classic BPF program to a socket
-    fn attach_filter<T>(self, fd: impl AsRawFd) -> Result<(), i32>;
+    fn attach_filter<T>(self, socket: &T) -> Result<(), i32>
+    where
+        T: AsRawFd;
 }
 
 // TODO: more documentation
